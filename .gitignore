@@ -1,0 +1,91 @@
+## .NET Core
+bin/
+obj/
+out/
+publish/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+## Visual Studio
+.vs/
+.vscode/
+*.swp
+*.sln.ide
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Visual Studio Code
+.vscode/
+*.code-workspace
+
+## Environment
+.env
+appsettings.Production.json
+
+## Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+## Docker
+docker-compose.override.yml
+*.pid
+*.seed
+*.pid.lock
+
+## Coverage
+coverage/
+*.coverage
+*.coverage.xml
+*.coverlet.json
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## JetBrains Rider
+.idea/
+*.sln.iml
+
+## Temp folders
+/tmp
+/temp
+/_Pvt_Extensions
+
+## Database files
+*.mdf
+*.ldf
+*.sdf
+*.mdb
+*.ndf
+
+## Test results
+TestResults/
+*.trx
+*.tmp
+*.tmp.dll
