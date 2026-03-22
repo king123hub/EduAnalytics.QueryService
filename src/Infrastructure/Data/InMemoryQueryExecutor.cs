@@ -3,6 +3,7 @@ using EduAnalytics.QueryService.Domain.Dimensions;
 using EduAnalytics.QueryService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace EduAnalytics.QueryService.Infrastructure.Data;
 
