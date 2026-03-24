@@ -55,3 +55,86 @@
 4. **下钻路径算法**：完全手动实现下钻逻辑，确保与业务语义（学科→章节→试题）一致
 
 ## 项目结构
+
+```
+EduAnalytics.QueryService/
+├── src/
+│   ├── Api/                          # Web API层
+│   │   ├── Controllers/
+│   │   │   └── AnalyticsController.cs    # 查询接口（自然语言查询、智能下钻）
+│   │   ├── Program.cs                    # 应用启动入口、依赖注入配置
+│   │   └── appsettings.json              # 配置文件
+│   │
+│   ├── Application/                  # 应用服务层
+│   │   ├── IntentParser/             # 意图解析模块
+│   │   │   └── Models/
+│   │   │       ├── IIntentParser.cs      # 意图解析器接口
+│   │   │       ├── MockLLMParser.cs      # 模拟大模型解析器
+│   │   │       ├── ParsedIntent.cs       # 结构化意图模型
+│   │   │       └── AnalysisType.cs       # 分析类型枚举
+│   │   │
+│   │   ├── SqlGenerator/             # SQL生成模块
+│   │   │   ├── ISqlGenerator.cs          # SQL生成器接口
+│   │   │   ├── EduSqlGenerator.cs        # 教育领域SQL生成器
+│   │   │   └── DimensionMapper.cs        # 维度字段映射配置
+│   │   │
+│   │   └── QueryExecutor/            # 查询执行模块
+│   │       └── IQueryExecutor.cs         # 查询执行器接口
+│   │
+│   ├── Domain/                       # 领域模型层
+│   │   ├── Entities/                 # 实体定义
+│   │   │   ├── Student.cs                # 学生实体
+│   │   │   ├── Question.cs               # 试题实体
+│   │   │   └── StudentAnswer.cs          # 学生作答实体（宽表）
+│   │   │
+│   │   └── Dimensions/               # 维度模型
+│   │       ├── SpaceDimension.cs         # 空间维度（市/区/学校/年级/班级）
+│   │       ├── TimeDimension.cs          # 时间维度（学年/学期/月/周/日）
+│   │       ├── ContentDimension.cs       # 内容维度（学科/章节/知识点/试题）
+│   │       └── StatisticMetrics.cs       # 统计指标（平均分/及格率/正确率）
+│   │
+│   └── Infrastructure/               # 基础设施层
+│       ├── Data/
+│       │   ├── EduDbContext.cs           # EF Core数据库上下文
+│       │   └── InMemoryQueryExecutor.cs  # 内存数据库查询执行器
+│       │
+│       └── MockData/
+│           └── MockDataSeeder.cs         # Mock数据填充器
+│
+├── docker-compose.yml                # Docker编排配置
+├── Dockerfile                        # Docker镜像构建文件
+└── README.md                         # 项目说明文档
+```
+
+### 分层说明
+
+| 层级 | 职责 | 依赖关系 |
+|------|------|----------|
+| **Api** | 接收HTTP请求，返回JSON响应 | → Application |
+| **Application** | 业务逻辑编排（意图解析→SQL生成→查询执行） | → Domain, Infrastructure |
+| **Domain** | 领域模型和业务规则（实体、维度定义） | 无依赖（纯领域层） |
+| **Infrastructure** | 数据访问、外部服务集成 | → Domain |
+
+### 核心模块
+
+1. **IntentParser（意图解析器）**
+   - 将自然语言问题解析为结构化的 `ParsedIntent` 对象
+   - 当前使用 `MockLLMParser` 模拟大模型解析
+   - 生产环境可替换为真实的LLM调用（OpenAI/Claude/本地模型）
+
+2. **SqlGenerator（SQL生成器）**
+   - 根据 `ParsedIntent` 生成优化的SQL查询语句
+   - 通过 `DimensionMapper` 配置化管理维度字段映射
+   - 自动添加 WHERE、GROUP BY、ORDER BY 子句
+
+3. **QueryExecutor（查询执行器）**
+   - 执行SQL并返回结果集
+   - 当前使用内存数据库（EF Core InMemory）
+   - 生产环境可切换为SQL Server/PostgreSQL
+
+4. **宽表模型（StudentAnswer）**
+   - 将星型模型提前物化为宽表，包含所有维度字段
+   - 空间维度：City, District, School, Grade, Class, StudentId
+   - 时间维度：AcademicYear, Semester, Month, Week, AnswerTime
+   - 内容维度：Subject, Chapter, KnowledgePoint, Paper, QuestionId
+   - 统计字段：Score, IsCorrect, FullScore
